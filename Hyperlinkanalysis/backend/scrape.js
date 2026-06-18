@@ -1,6 +1,8 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 
+const logger = require('./logger');
+
 const user_agent ='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36';
 const maxContentSize = 5 * 1024 * 1024; // 5 MB
 
@@ -17,13 +19,16 @@ function scrapeURL(url, user_agent, maxContentSize=5 * 1024 * 1024) {
         const item = $(element).text();
         data.push(item);
         });
+        logger.info("Scraped data: ",data);
         return data;
         })
         .catch(error => {
             if(error.code === 'ECONNABORTED') {
                 console.error('Request timed out');
+                logger.error(`Request timed out: ${error}`);
             } else {
                 console.error('Error fetching data:', error.message || error);
+                logger.error(`Error fetching data: ${error.message || error}`);
             }
             return null;
     });

@@ -4,6 +4,7 @@ const cors = require('cors');
 
 const splitter = require('./backend/split_links.js')
 const scraper = require('./backend/scrape.js');
+const logger = require('./backend/logger.js');
 
 const PORT = 3000;
 const app = express();
@@ -36,6 +37,7 @@ app.get('/events', (req, res) => {
 app.post('/search', (req, res) => {
     console.log(req.body);
     console.log("Received from frontend:", req.body.content);
+    logger.info(`Received from frontend: ${req.body.content}`);
 
     res.json({
         success: true
@@ -44,9 +46,10 @@ app.post('/search', (req, res) => {
 
 app.post('/upload', async (req, res) => {
     const blob = req.body.content;   // already a plain string
-    console.log("Type:", typeof req.body.content);
-    console.log("Received string blob:");
-    console.log(blob);
+    //console.log("Type:", typeof req.body.content);
+    logger.info(`Type: ${(typeof req.body.content)}`);
+    console.log(`Received string blob:${blob}`);
+    logger.info(`Received string blob: ${blob}`);
     
     // start splitting
     let scrape_list = splitter.urlDetection(blob);
@@ -60,6 +63,7 @@ app.post('/upload', async (req, res) => {
 // Graceful shutdown
 function shutdown(message = "Server shutting down...") {
     console.log(`\n${message}`);
+    logger.info(`${message}`);
 
     // Send goodbye to all connected clients (if using SSE or WebSocket)
     // For now, we'll log it. You can expand this later.
@@ -68,6 +72,7 @@ function shutdown(message = "Server shutting down...") {
     if (server) {
         server.close(() => {
             console.log("HTTP server closed.");
+            logger.info(`HTTP server closed`);
             process.exit(0);
         });
     } else {
@@ -82,10 +87,12 @@ process.on('SIGINT', () => shutdown("Server received SIGINT (Ctrl+C)"));   // Mo
 // Optional: Catch uncaught exceptions
 process.on('uncaughtException', (err) => {
     console.error("Uncaught Exception:", err);
+    logger.fatal(`Uncaught Exception: ${err}`);
     shutdown("Server crashed - shutting down");
 });
 
 server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    logger.info(`Server running on port: ${PORT}`);
 });
 

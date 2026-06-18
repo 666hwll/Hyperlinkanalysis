@@ -3,7 +3,7 @@
 // 3. regex
 // 4. validate url
 // 5. look if crawlable
-
+const logger = require('./logger');
 
 var detected_links = [];
 const textblob = "www.google.com\nhttps://www.schilderhaus.at/verkehrsschilder.htm?gad_source=1&gbraid=0AAAAAD-OVRmH6rHGL6bZaNPSfSUPmT3Ys&gclid=EAIaIQobChMIsK7OgPiRhwMV55GDBx1LAglEEAAYASAAEgI5k_D_BwE\nhttps://www.topgear.com\nhtps:yt.com";
@@ -59,10 +59,14 @@ function dedupeLinkList(array) {
 function urlDetection(textblob) {
     // the interface for index.js
     let new_list = breakApartSingleLinks(textblob);
+    logger.info("The old list" + new_list);
     normalizeUrls(new_list);
     new_list = sortLinkList(new_list);
     new_list = dedupeLinkList(new_list);
     console.log(new_list);
+    logger.info(`The new list: ${new_list}`);
+    
+
     return new_list;
     
 }
