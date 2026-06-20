@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "online": "npm audit && node index.js"
+    "online": "npm audit && npm audit fix && node index.js"
   },
   "keywords": [],
   "author": "",
