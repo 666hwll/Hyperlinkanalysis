@@ -127,8 +127,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function file_upload_successful() {
         toggle_the_visibility("search_bar", true);
-        const startProcessEvent = new Event('startProcess');
-        document.dispatchEvent(startProcessEvent);
+        //const startProcessEvent = new Event('startProcess');
+        //document.dispatchEvent(startProcessEvent);
     }
 
 
@@ -181,8 +181,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 //Display with HTML breaks
                 //document.getElementById('output').innerHTML = result_formatted;
-                document.getElementById('output').innerHTML = "Links loaded succesfully ✅ <br> Processing may take a while ...";
-
+                toggle_the_visibility("file_input", false);
+                change_output_area("📂 File loaded successfully ✅ <br> 🔄 Uploading to server ...");
 
                 // send to backend
                 fetch('http://localhost:3000/upload', {
@@ -194,17 +194,29 @@ document.addEventListener("DOMContentLoaded", function () {
                         content: file_reader.result
                     })
                 })
-                    .then(res => res.json())
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error(`Server error: ${res.status}`);
+                        }
+                        change_output_area("📂 File loaded successfully ✅ <br> 🔄 Processing your links ...");
+                        return res.json();
+                    })
                     .then(data => {
+                        change_output_area("📂 File loaded successfully ✅ <br> 🔄 Processing your links ... <br> ✅ Data received. Your Search-Index is ready!");
+                        file_upload_successful();
                         console.log(data);
                         localStorage.setItem('retrieved_data', JSON.stringify(data));
+                    })
+                    .catch(error => {
+                        console.error('Error uploading file:', error);
+                        change_output_area("❌ Error uploading file: " + error.message + "<br> Please try again.");
+                        toggle_the_visibility("file_input", true);
                     });
 
             }
 
             file_reader.readAsText(this.files[0]);
-            toggle_the_visibility("file_input", false);
-            file_upload_successful();
+            
         });
 
 
