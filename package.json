@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "online-prep": "npm audit && npm audit fix",
-    "online": "npm online-prep && node index.js"
+    "online": "npm run online-prep && node index.js"
   },
   "keywords": [],
   "author": "",
