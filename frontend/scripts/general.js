@@ -1,3 +1,21 @@
+/////////////////////////////// TODO
+/*
+[
+  url,
+  matchCount,
+  matchIndexes
+]
+*/
+/////////////////////////// TO
+/*
+{
+    url: json.valid_urls[i],
+    matches: count_of_matches,
+    positions: match_indexes
+}
+*/
+/////////////////////////////// EOF TODO
+
 
 document.addEventListener("DOMContentLoaded", function () {
     function change_output_area(content) {
@@ -86,10 +104,10 @@ document.addEventListener("DOMContentLoaded", function () {
     function format_links_as_divisions(literal_content) {
         const new_formated = [];
         for (let i = 0; i < literal_content.length; i++) {
-            let div_content = "<a href=" + literal_content[i][0] + ">" + literal_content[i][0] + "</a>";
+            let div_content = `<a href="${literal_content[i][0]}" target="_blank" rel="noopener noreferrer"> ${literal_content[i][0]} </a>`;
             const positions = literal_content[i][2].join(", ");
-            div_content += "<p> Total appearance: " + literal_content[i][1] + " ;<br> At absolute string position: " + positions + " ;</p>";
-            let new_blob = "<div class=solution > " + div_content + "</div> <br>";
+            div_content += `<p> Total appearance: ${literal_content[i][1]};<br>At absolute string position: ${positions};</p>`;
+            let new_blob = `<div class="solution">${div_content} </div><br>`;
             new_formated.push(new_blob);
         }
         //return new_formatted.join("");
@@ -97,12 +115,21 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function search_body() {
-        const userDataFromStorage = JSON.parse(localStorage.getItem('retrieved_data'));
+        //const userDataFromStorage = JSON.parse(localStorage.getItem('retrieved_data'));
+        const raw = localStorage.getItem('retrieved_data');
+
+        if (!raw) {
+            change_output_area("No search index loaded.");
+            return [];
+        }
+
+        const userDataFromStorage = JSON.parse(raw);
+//////////////////////////////////////////////////////////
         const user_term = document.getElementById("search-input").value.trim();
 
         if (!user_term) {
             change_output_area("<p>Please enter a search term.</p>");
-            return;
+            return [];
         }
 
         const array_containing_link_index_references = search_through_object(userDataFromStorage, user_term);
@@ -114,13 +141,18 @@ document.addEventListener("DOMContentLoaded", function () {
         const uber_array = search_body();
         //localStorage.setItem('search_results', JSON.stringify(list_of_included_sites));
         const html_formated_solutions = format_links_as_divisions(uber_array);
-        change_output_area("<p>Search results: </p><br>" + uber_array.length + "<br> Sites: <br>" + html_formated_solutions);
+        const htm_string = html_formated_solutions.join("");
+        change_output_area(`<p>Search results:${uber_array.length}</p><br>Sites:<br>${htm_string}`);
     }
 
     function feelingLuckyPressed() { // last feature to implement
         //const processed_solutions = localStorage.getItem('search_results');
         //window.open(processed_solutions[1]);
         const total_array = search_body();
+        if (total_array.length === 0) {
+            alert("No matches found.");
+        return;
+}
         window.open(total_array[0][0]);
         alert("I guess you are feeling lucky now? ;)");
     }
@@ -131,7 +163,7 @@ document.addEventListener("DOMContentLoaded", function () {
         //document.dispatchEvent(startProcessEvent);
     }
 
-
+/*
     ////////////////////////////////
     const eventSource = new EventSource('/events');
 
@@ -143,6 +175,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         eventSource.close();
     };
+*/
     /////////////////////////////////
     document.getElementById("search-button").addEventListener("click", search_impulse);
     //document.getElementById("search-input").addEventListener("onfocus", this.value='');
@@ -160,7 +193,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // reset the file input on the frontend
         document.getElementById("myfile").value = "";
         document.getElementById('search-input').value = "";
-        localStorage.clear();
+        //localStorage.clear();  too aggressive 
+        localStorage.removeItem("retrieved_data");
         toggle_the_visibility("file_input", false);
         toggle_the_visibility("search_bar", false);
         toggle_the_visibility("file_input", true);
@@ -182,7 +216,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 //Display with HTML breaks
                 //document.getElementById('output').innerHTML = result_formatted;
                 toggle_the_visibility("file_input", false);
-                change_output_area("📂 File loaded successfully ✅ <br> 🔄 Uploading to server ...");
+                change_output_area("File loaded successfully <br> Uploading to server ...");
 
                 // send to backend
                 fetch('http://localhost:3000/upload', {
@@ -198,18 +232,18 @@ document.addEventListener("DOMContentLoaded", function () {
                         if (!res.ok) {
                             throw new Error(`Server error: ${res.status}`);
                         }
-                        change_output_area("📂 File loaded successfully ✅ <br> 🔄 Processing your links ...");
+                        change_output_area("File loaded successfully <br> Processing your links ...");
                         return res.json();
                     })
                     .then(data => {
-                        change_output_area("📂 File loaded successfully ✅ <br> 🔄 Processing your links ... <br> ✅ Data received. Your Search-Index is ready!");
+                        change_output_area("File loaded successfully <br> Processing your links ... <br> Data received. Your Search-Index is ready!");
                         file_upload_successful();
                         console.log(data);
                         localStorage.setItem('retrieved_data', JSON.stringify(data));
                     })
                     .catch(error => {
-                        console.error('Error uploading file:', error);
-                        change_output_area("❌ Error uploading file: " + error.message + "<br> Please try again.");
+                        console.error(`Error uploading file: ${error}`);
+                        change_output_area(`Error uploading file: ${error.message} <br> Please try again.`);
                         toggle_the_visibility("file_input", true);
                     });
 
@@ -219,6 +253,20 @@ document.addEventListener("DOMContentLoaded", function () {
             
         });
 
+/////////////////////////////// OLD
+    //toggle_the_visibility("search_bar", false);
+/////////////////////////////// EOF OLD
 
+/////////////////////////////// NEW
+const storedData = localStorage.getItem("retrieved_data");
+
+if (storedData) {
+    toggle_the_visibility("file_input", false);
+    toggle_the_visibility("search_bar", true);
+    change_output_area("Existing search index loaded.");
+} else {
+    toggle_the_visibility("file_input", true);
     toggle_the_visibility("search_bar", false);
+}
+/////////////////////////////// EOF NEW
 });
