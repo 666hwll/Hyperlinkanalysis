@@ -142,7 +142,12 @@ document.addEventListener("DOMContentLoaded", function () {
         //localStorage.setItem('search_results', JSON.stringify(list_of_included_sites));
         const html_formated_solutions = format_links_as_divisions(uber_array);
         const htm_string = html_formated_solutions.join("");
-        change_output_area(`<p>Search results:${uber_array.length}</p><br>Sites:<br>${htm_string}`);
+        if(htm_string.length > 0){
+            change_output_area(`<p>Search results:${uber_array.length}</p><br>Sites:<br>${htm_string}`);
+        } else {
+            change_output_area("No matches found.");
+        }
+        
     }
 
     function feelingLuckyPressed() { // last feature to implement
@@ -150,11 +155,11 @@ document.addEventListener("DOMContentLoaded", function () {
         //window.open(processed_solutions[1]);
         const total_array = search_body();
         if (total_array.length === 0) {
-            alert("No matches found.");
+            change_output_area("No matches found.");
         return;
 }
         window.open(total_array[0][0]);
-        alert("I guess you are feeling lucky now? ;)");
+        change_output_area("I guess you are feeling lucky now? ;)");
     }
 
     function file_upload_successful() {
